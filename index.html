@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target='_top'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi Guru MINUJA</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#111424">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap' rel='stylesheet'>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css' rel='stylesheet'>
+  
+    <style>
+        :root { --primary: #6C5DD3; --primary-hover: #5a4bbf; --success: #00D26A; --danger: #F45B69; --dark: #242731; --text-main: #FFFFFF; --text-muted: rgba(255, 255, 255, 0.7); --glass-bg: rgba(255, 255, 255, 0.1); --glass-border: rgba(255, 255, 255, 0.2); --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); } 
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; } 
+        body { background: #111424; min-height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; color: var(--text-main); } 
+        .background-shapes { position: absolute; width: 100vw; height: 100vh; z-index: -1; overflow: hidden; } 
+        .shape { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.8; animation: drift 20s infinite alternate; } 
+        .shape-1 { width: 400px; height: 400px; background: #6C5DD3; top: -100px; left: -100px; } 
+        .shape-2 { width: 300px; height: 300px; background: #FF7E67; bottom: -50px; right: -50px; } 
+        .shape-3 { width: 250px; height: 250px; background: #00D26A; bottom: 20%; left: 20%; } 
+        @keyframes drift { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(50px, 30px) scale(1.1); } } 
+        .container { width: 100%; max-width: 400px; padding: 20px; z-index: 10; } 
+        .glass-card { background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 40px 30px; box-shadow: var(--glass-shadow); text-align: center; } 
+        .hidden { display: none !important; } 
+        .fade-in { animation: fadeIn 0.5s ease forwards; } 
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } } 
+        h2 { font-size: 22px; font-weight: 700; margin-bottom: 5px; } 
+        .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; } 
+        .header-info { text-align: left; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); } 
+        .user-id { display: inline-block; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 12px; font-size: 12px; color: var(--primary); font-weight: bold; } 
+        .input-group { position: relative; margin-bottom: 20px; } 
+        .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); } 
+        .input-group input { width: 100%; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--glass-border); padding: 15px 15px 15px 45px; border-radius: 12px; color: white; outline: none; } 
+        .btn-primary { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; } 
+        .btn-disabled { background: #444; cursor: not-allowed; opacity: 0.7; } 
+        .status-box { background: rgba(0,0,0,0.2); border-radius: 15px; padding: 20px; margin-bottom: 25px; } 
+        .result-box { padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; text-align: left; font-size: 14px; } 
+        .result-box.success { background: rgba(0, 210, 106, 0.1); border: 1px solid var(--success); color: var(--success); } 
+        .result-box.error { background: rgba(244, 91, 105, 0.1); border: 1px solid var(--danger); color: var(--danger); } 
+        #loadingOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(17, 20, 36, 0.8); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; } 
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--glass-border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; } 
+        @keyframes spin { 100% { transform: rotate(360deg); } } 
+    </style>
+</head>
+<body>
+    <div id='loadingOverlay' class='hidden'><div class='spinner'></div><p id='loadingText' style='color: white; margin-top: 15px;'>Memuat...</p></div>
+    
+    <div class='container'>
+        <div id='loginPage' class='glass-card fade-in'>
+            <img src='https://i.postimg.cc/ZKC2FSs1/LOGO-MADRASAH-02.png' alt='Logo' style='width:70px; margin-bottom:15px;'>
+            <h2>Portal Absen Guru</h2>
+            <p class='subtitle'>Sistem Absensi GPS</p>
+            <div class='input-group'><i class='fas fa-user'></i><input type='text' id='username' placeholder='Username/NIP'></div>
+            <div class='input-group'><i class='fas fa-lock'></i><input type='password' id='password' placeholder='Password'></div>
+            <button onclick='handleLogin()' class='btn-primary'>Masuk <i class='fas fa-arrow-right'></i></button>
+        </div>
+  
+        <div id='dashboardPage' class='glass-card hidden'>
+            <div class='header-info'><h3 id='welcomeName'>Halo, Guru</h3><span class='user-id' id='welcomeId'>ID</span></div>
+            <div class='status-box'>
+                <div class='status-icon' id='gpsIcon' style="font-size:30px; margin-bottom:10px;"><i class='fas fa-map-marker-alt'></i></div>
+                <h4 id='gpsStatus'>Mencari Lokasi...</h4>
+                <p id='gpsDetail' style="font-size:12px; color:gray;">Mengakses GPS</p>
+            </div>
+            <div id='resultBox' class='result-box hidden'><i id='resultIcon' class='fas fa-check-circle'></i><p id='resultMsg'></p></div>
+            <button id='btnCheckIn' onclick='handleCheckIn()' class='btn-primary btn-disabled' disabled>Absen Sekarang <i class='fas fa-fingerprint'></i></button>
+            <button onclick="localStorage.removeItem('guruSession'); location.reload();" style="background:none; border:none; color:gray; margin-top:20px; cursor:pointer;">Keluar</button>
+        </div>
+    </div>
+
+    <script>
+        // GANTI INI DENGAN URL EXEC ANDA
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx9sDsFimQNkzAGkJRuWxnm0_pVzWMFaQdwW9YpF3C1CFIpD44oUaKuQ9vSniIdzhVkFA/exec";
+
+        let currentUser = null; 
+        let currentLat = null; 
+        let currentLon = null;
+
+        const elLoading = document.getElementById('loadingOverlay');
+        const btnCheckIn = document.getElementById('btnCheckIn');
+
+        window.onload = () => {
+            const session = localStorage.getItem('guruSession');
+            if(session) {
+                currentUser = JSON.parse(session);
+                showDashboard();
+            }
+        };
+
+        function handleLogin() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            if(!u || !p) return alert('Isi data!');
+            
+            elLoading.classList.remove('hidden');
+            fetch(`${WEB_APP_URL}?action=login&u=${u}&p=${p}`)
+                .then(res => res.json())
+                .then(r => {
+                    elLoading.classList.add('hidden');
+                    if(r.success) {
+                        currentUser = r.guru;
+                        localStorage.setItem('guruSession', JSON.stringify(r.guru));
+                        showDashboard();
+                    } else alert(r.message);
+                }).catch(() => { elLoading.classList.add('hidden'); alert('Error koneksi server'); });
+        }
+
+        function showDashboard() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('dashboardPage').classList.remove('hidden');
+            document.getElementById('welcomeName').innerText = 'Halo, ' + currentUser.nama;
+            document.getElementById('welcomeId').innerText = currentUser.id;
+            initGPS();
+        }
+
+        function initGPS() {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                currentLat = pos.coords.latitude;
+                currentLon = pos.coords.longitude;
+                document.getElementById('gpsStatus').innerText = 'Lokasi Terkunci';
+                document.getElementById('gpsIcon').style.color = '#00D26A';
+                btnCheckIn.disabled = false;
+                btnCheckIn.classList.remove('btn-disabled');
+            }, () => { alert('Aktifkan GPS Anda!'); }, {enableHighAccuracy:true});
+        }
+
+        function handleCheckIn() {
+            elLoading.classList.remove('hidden');
+            fetch(`${WEB_APP_URL}?action=absen&id=${currentUser.id}&nama=${currentUser.nama}&lat=${currentLat}&lon=${currentLon}`)
+                .then(res => res.json())
+                .then(r => {
+                    elLoading.classList.add('hidden');
+                    const resBox = document.getElementById('resultBox');
+                    resBox.classList.remove('hidden');
+                    resBox.className = r.success ? 'result-box success' : 'result-box error';
+                    document.getElementById('resultMsg').innerText = r.message;
+                    if(r.success) btnCheckIn.style.display = 'none';
+                });
+        }
+    </script>
+</body>
+</html>
